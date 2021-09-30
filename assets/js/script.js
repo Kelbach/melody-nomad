@@ -49,8 +49,7 @@ var displayShows = function(json) {
 
         
         //need to generate plane ticket prices
-        getAirportCodes(originPlace, destinationPlace);
-        getTickets(originPlace, destinationPlace, showDate);
+        getAirportCodes(originPlace);
     }
 
 };
@@ -80,15 +79,7 @@ var getAirportCodes = function(cityName) {
 var getTickets = function(originPlace, destinationPlace, showDate) {
     console.log("..generating airline prices from " + originPlace + " to " + destinationPlace + " with departure date of " + showDate + "..");
 
-    // //skyscanner browse quotes fetch
     // fetch("https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/"+originPlace+"/"+destinationPlace+"/"+showDate, {
-    // 	"method": "GET",
-    // 	"headers": {
-    // 		"x-rapidapi-host": "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com",
-    // 		//skyscanner apikey
-    //         "x-rapidapi-key": "d574042440msh4cf8eb8f0390492p1e0f76jsn1523b9586d4c"
-    // 	}
-    // })
 
     var apiUrl = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/SFO-sky/JFK-sky/2021-11-01?inboundpartialdate=2021-12-01";
 
