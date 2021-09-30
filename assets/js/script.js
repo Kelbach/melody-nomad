@@ -54,7 +54,7 @@ var createTableRow = function(showDate, destinationPlace, ticketPrice, flightPri
 
 
 
-var displayShows = function(json) {
+async function displayShows(json) {
     console.log("rendering shows");
     
     //need to generate card for upcoming tour dates using for loop,
@@ -79,20 +79,26 @@ var displayShows = function(json) {
             ticketPrice = "Not on Sale";
         }
 
-        console.log("////////////////info for event "+(i+1)+"////////////////")
-        console.log("Name: "+actName);
-        console.log("current-city: "+originPlace);
-        console.log("event date: "+showDate);
-        console.log("destination: "+destinationPlace);
-        console.log("tickets starting at: $"+ticketPrice);
-        console.log("Link: "+"https://app.ticketmaster.com/"+ticketLink);
+        // console.log("////////////////info for event "+(i+1)+"////////////////")
+        // console.log("Name: "+actName);
+        // console.log("current-city: "+originPlace);
+        // console.log("event date: "+showDate);
+        // console.log("destination: "+destinationPlace);
+        // console.log("tickets starting at: $"+ticketPrice);
+        // console.log("Link: "+"https://app.ticketmaster.com/"+ticketLink);
         // console.log("image_url_smol: "+ticketImageSm);
         // console.log("image_url_large: "+ticketImageL);
         // console.log("image_url_xlarge: "+ticketImageXL);
 
       
         // //need to generate plane ticket prices
-        //getPlaneTickets(originPlace, destinationPlace, showDate);
+        //var flightPriceData = await getPlaneTicketPrice(originPlace, destinationPlace, showDate);
+        //var flightPrice = flightPriceData.Quotes[0].MinPrice;
+        // if (flightPriceData && flightPriceData.Quotes[0]) {
+        //     var flightPrice = flightPriceData.Quotes[0].MinPrice;
+        // } else {
+        //     var flightPrice = 0;
+        // }
         
         var flightPrice = 100;
         createTableRow(showDate, destinationPlace, ticketPrice, flightPrice);
@@ -120,7 +126,13 @@ async function renderAirportCodes(originPlace, destinationPlace) {
     originAirport = originData.Places[0].CityId;
 
     let destinationData = await getAirportCode(destinationPlace);
-    destinationAirport = destinationData.Places[0].CityId;
+    //destinationAirport = destinationData.Places[0].CityId;
+
+    if (destinationData.Places[0]) {
+        destinationAirport = destinationData.Places[0].CityId;
+    } else {
+        destinationAirport = "LAX-sky";
+    }
 
     var airportArray = [originAirport, destinationAirport];
     return airportArray;
@@ -128,38 +140,21 @@ async function renderAirportCodes(originPlace, destinationPlace) {
 
 
 
-async function getPlaneTickets(originPlace, destinationPlace, showDate) {
+async function getPlaneTicketPrice(originPlace, destinationPlace, showDate) {
     console.log("..generating airline prices from " + originPlace + " to " + destinationPlace + " with departure date of " + showDate + "..");
     var airportArray = await renderAirportCodes(originPlace, destinationPlace);
 
     var apiUrl = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/"+airportArray[0]+"/"+airportArray[1]+"/"+showDate+"?inboundpartialdate=2021-10-15";
 
-    fetch(apiUrl, {
-	"method": "GET",
-	"headers": {
-		"x-rapidapi-host": "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com",
-		"x-rapidapi-key": "1658dcf10fmshdb341b964db1078p1016f2jsn3f3f02e49882"
-	}
-    })
-    .then(response => {
-        response.json().then(function (data) {
-            console.log(data);
-            console.log("you are flying out of " + airportArray[0] + " and landing at " + airportArray[1])
-            console.log("The minimum ticket price for this flight is $" + data.Quotes[0].MinPrice);
-        });
-    })
-    .catch(err => {
-        console.error(err);
-    });
-    
-    
-    // //if we use this we'll need to put the form in the HTML
-    // //maybe use moment to generate a mini calendar
-    // var outboundDate = $("#date").val() ;
-    
-    // //queryselect this one
-    // var originPlace = $("#city-search").val().replace(/ /g, "+") ;
-    
+    try {
+        let res = await fetch(apiUrl, {"method": "GET", "headers": {
+            "x-rapidapi-host": "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com",
+            "x-rapidapi-key": "1658dcf10fmshdb341b964db1078p1016f2jsn3f3f02e49882"
+        }})
+        return await res.json();
+    } catch (error) {
+        console.log(error);
+    }
 };
 
 //getPlaneTickets("Cleveland", "Los Angeles", "2021-10-01");
