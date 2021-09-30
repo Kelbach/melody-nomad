@@ -7,8 +7,8 @@ var getShows = (function(band){
     console.log("..fetching tour dates..");
     $.ajax({
         type:"GET",
-        //modify url to include query search for 'keyword'
-        url:"https://app.ticketmaster.com/discovery/v2/events?apikey="+TMkey+"&keyword="+band+"&locale=*&includeSpellcheck=yes",
+        //shows limited to US and sorted by date
+        url:"https://app.ticketmaster.com/discovery/v2/events?apikey="+TMkey+"&keyword="+band+"&locale=*&sort=date,asc&countryCode=US&includeSpellcheck=yes",
         async:true,
         dataType: "json",
         success: function(json) {
@@ -21,34 +21,49 @@ var getShows = (function(band){
                     //maybe reword this alert
                     alert("There was an error");
                  }
-      });
+    });
 });
 
 var displayShows = function(json) {
     console.log("rendering shows");
     
     //need to generate card for upcoming tour dates using for loop,
-        
-    for (var i = 0; i < 4; i++){
+        //size contains number of object elements ergo shows
+    for (var i = 0; i < json.page.size; i++){
         
         var originPlace = $("#city-search").val().replace(/ /g, "+");
+        var actName = json._embedded.events[i].name;
         var showDate = json._embedded.events[i].dates.start.localDate ;
         var destinationPlace = json._embedded.events[i]._embedded.venues[0].city.name ;
-        //might need to expand destination into city,state,country which will require conditions since globally some states are null
+        var ticketLink = json._links.self.href;
+        var ticketImageSm = json._embedded.events[i].images[0].url;
+        var ticketImageL = json._embedded.events[i].images[4].url;
+        var ticketImageXL = json._embedded.events[i].images[5].url;
+        var ticketPrice = "";
         
-        //min price, gotta make an if not-on-sale yet condition
-        var ticketPrice = json._embedded.events[i].priceRanges[0].min ;
-        
-        
+        //error on random ticketLink, images, might need to loops this somehow or just deal with errors
+        var getTicketPrice = function() {
+            if (json._embedded.events[i].priceRanges) {
+                ticketPrice = json._embedded.events[i].priceRanges[0].min;
+            } else {
+                console.log("tickets not on sale");
+                ticketPrice = "Not on Sale";
+            }
+        };
+        getTicketPrice();
 
+        console.log("////////////////info for event "+(i+1)+"////////////////")
+        console.log("Name: "+actName);
         console.log("current-city: "+originPlace);
         console.log("event date: "+showDate);
         console.log("destination: "+destinationPlace);
-        console.log("tickets starting at: "+ticketPrice);
-    
-
-        
-        //need to generate plane ticket prices
+        console.log("tickets starting at: $"+ticketPrice);
+        console.log("Link: "+"https://app.ticketmaster.com/"+ticketLink);
+        console.log("image_url_smol: "+ticketImageSm);
+        console.log("image_url_large: "+ticketImageL);
+        console.log("image_url_xlarge: "+ticketImageXL);
+      
+        // //need to generate plane ticket prices
         //getAirportCodes(destinationPlace);
     }
 
