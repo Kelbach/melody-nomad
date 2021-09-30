@@ -24,6 +24,15 @@ var getShows = (function(band){
     });
 });
 
+
+var createTableRow = function(date, cityName, ticketPrice, flightPrice){
+
+
+
+};
+
+
+
 var displayShows = function(json) {
     console.log("rendering shows");
     
@@ -42,29 +51,35 @@ var displayShows = function(json) {
         var ticketPrice = "";
         
         //error on random ticketLink, images, might need to loops this somehow or just deal with errors
-        var getTicketPrice = function() {
-            if (json._embedded.events[i].priceRanges) {
-                ticketPrice = json._embedded.events[i].priceRanges[0].min;
-            } else {
-                console.log("tickets not on sale");
-                ticketPrice = "Not on Sale";
-            }
-        };
-        getTicketPrice();
+        if (json._embedded.events[i].priceRanges) {
+            ticketPrice = json._embedded.events[i].priceRanges[0].min;
+        } else {
+            console.log("tickets not on sale");
+            ticketPrice = "Not on Sale";
+        }
 
-        // console.log("////////////////info for event "+(i+1)+"////////////////")
-        // console.log("Name: "+actName);
-        // console.log("current-city: "+originPlace);
-        // console.log("event date: "+showDate);
-        // console.log("destination: "+destinationPlace);
-        // console.log("tickets starting at: $"+ticketPrice);
-        // console.log("Link: "+"https://app.ticketmaster.com/"+ticketLink);
+        console.log("////////////////info for event "+(i+1)+"////////////////")
+        console.log("Name: "+actName);
+        console.log("current-city: "+originPlace);
+        console.log("event date: "+showDate);
+        console.log("destination: "+destinationPlace);
+        console.log("tickets starting at: $"+ticketPrice);
+        console.log("Link: "+"https://app.ticketmaster.com/"+ticketLink);
         // console.log("image_url_smol: "+ticketImageSm);
         // console.log("image_url_large: "+ticketImageL);
         // console.log("image_url_xlarge: "+ticketImageXL);
+
+
+        $("#ex-date")[0].innerText = showDate;
+        $("#ex-city")[0].innerText = originPlace;
+        $("#ex-concert-price")[0].innerText = "$" + ticketPrice;
+        $("#ex-flight-price")[0].innerText = "$100";
+        var total = ticketPrice + 100;
+        $("#ex-total")[0].innerText = "$" + total;
+
       
         // //need to generate plane ticket prices
-        //getTickets(originPlace, destinationPlace, showDate);
+        //getPlaneTickets(originPlace, destinationPlace, showDate);
     }
 
 };
@@ -97,7 +112,7 @@ async function renderAirportCodes(originPlace, destinationPlace) {
 
 
 
-async function getTickets(originPlace, destinationPlace, showDate) {
+async function getPlaneTickets(originPlace, destinationPlace, showDate) {
     console.log("..generating airline prices from " + originPlace + " to " + destinationPlace + " with departure date of " + showDate + "..");
     var airportArray = await renderAirportCodes(originPlace, destinationPlace);
 
@@ -131,7 +146,7 @@ async function getTickets(originPlace, destinationPlace, showDate) {
     
 };
 
-getTickets("Cleveland", "Los Angeles", "2021-10-01");
+//getPlaneTickets("Cleveland", "Los Angeles", "2021-10-01");
 
 
 searchBtn.on("click", function(event) {
