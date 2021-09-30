@@ -52,50 +52,56 @@ var displayShows = function(json) {
         };
         getTicketPrice();
 
-        console.log("////////////////info for event "+(i+1)+"////////////////")
-        console.log("Name: "+actName);
-        console.log("current-city: "+originPlace);
-        console.log("event date: "+showDate);
-        console.log("destination: "+destinationPlace);
-        console.log("tickets starting at: $"+ticketPrice);
-        console.log("Link: "+"https://app.ticketmaster.com/"+ticketLink);
-        console.log("image_url_smol: "+ticketImageSm);
-        console.log("image_url_large: "+ticketImageL);
-        console.log("image_url_xlarge: "+ticketImageXL);
+        // console.log("////////////////info for event "+(i+1)+"////////////////")
+        // console.log("Name: "+actName);
+        // console.log("current-city: "+originPlace);
+        // console.log("event date: "+showDate);
+        // console.log("destination: "+destinationPlace);
+        // console.log("tickets starting at: $"+ticketPrice);
+        // console.log("Link: "+"https://app.ticketmaster.com/"+ticketLink);
+        // console.log("image_url_smol: "+ticketImageSm);
+        // console.log("image_url_large: "+ticketImageL);
+        // console.log("image_url_xlarge: "+ticketImageXL);
       
         // //need to generate plane ticket prices
-        //getAirportCodes(destinationPlace);
+        //getTickets(originPlace, destinationPlace, showDate);
     }
 
 };
 
 
-var getAirportCodes = function(cityName) {
-    var apiUrl = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/autosuggest/v1.0/UK/GBP/en-GB/?query=" + cityName;
-    fetch(apiUrl, {
-	"method": "GET",
-	"headers": {
-		"x-rapidapi-host": "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com",
-		"x-rapidapi-key": "1658dcf10fmshdb341b964db1078p1016f2jsn3f3f02e49882"
-	}
-    })
-    .then(response => {
-        response.json().then(function (data) {
-            console.log(data.Places[0].CityId);
-        });
-    })
-    .catch(err => {
-        console.error(err);
-    });
+async function getAirportCode(cityName) {
+    let url = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/autosuggest/v1.0/UK/GBP/en-GB/?query=" + cityName;
 
-};
+    try {
+        let res = await fetch(url, {"method": "GET", "headers": {
+            "x-rapidapi-host": "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com",
+            "x-rapidapi-key": "1658dcf10fmshdb341b964db1078p1016f2jsn3f3f02e49882"
+        }})
+        return await res.json();
+    } catch (error) {
+        console.log(error);
+    }
+}
 
-var getTickets = function(originAirport, destinationAirport, showDate) {
+async function renderAirportCodes(originPlace, destinationPlace) {
+    let originData = await getAirportCode(originPlace);
+    originAirport = originData.Places[0].CityId;
+
+    let destinationData = await getAirportCode(destinationPlace);
+    destinationAirport = destinationData.Places[0].CityId;
+
+    var airportArray = [originAirport, destinationAirport];
+    return airportArray;
+}
+
+
+
+async function getTickets(originPlace, destinationPlace, showDate) {
     console.log("..generating airline prices from " + originPlace + " to " + destinationPlace + " with departure date of " + showDate + "..");
+    var airportArray = await renderAirportCodes(originPlace, destinationPlace);
 
-    // var apiUrl = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/"+originAirport+"/"+destinationPlace+"/"+showDate;
-
-    var apiUrl = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/SFO-sky/JFK-sky/2021-11-01?inboundpartialdate=2021-12-01";
+    var apiUrl = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/"+airportArray[0]+"/"+airportArray[1]+"/"+showDate+"?inboundpartialdate=2021-10-15";
 
     fetch(apiUrl, {
 	"method": "GET",
@@ -107,9 +113,8 @@ var getTickets = function(originAirport, destinationAirport, showDate) {
     .then(response => {
         response.json().then(function (data) {
             console.log(data);
-            console.log(data.Quotes);
-            console.log(data.Quotes.MinPrice);
-            console.log(data.Quotes[0].MinPrice);
+            console.log("you are flying out of " + airportArray[0] + " and landing at " + airportArray[1])
+            console.log("The minimum ticket price for this flight is $" + data.Quotes[0].MinPrice);
         });
     })
     .catch(err => {
@@ -124,10 +129,9 @@ var getTickets = function(originAirport, destinationAirport, showDate) {
     // //queryselect this one
     // var originPlace = $("#city-search").val().replace(/ /g, "+") ;
     
-
 };
 
-
+getTickets("Cleveland", "Los Angeles", "2021-10-01");
 
 
 searchBtn.on("click", function(event) {
