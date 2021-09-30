@@ -25,10 +25,31 @@ var getShows = (function(band){
 });
 
 
-var createTableRow = function(date, cityName, ticketPrice, flightPrice){
+var createTableRow = function(showDate, destinationPlace, ticketPrice, flightPrice){
+    var tableRow = document.createElement('tr');
 
+    var dateData = document.createElement('td');
+    dateData.textContent = showDate;
+    tableRow.appendChild(dateData);
 
+    var cityData = document.createElement('td');
+    cityData.textContent = destinationPlace;
+    tableRow.appendChild(cityData);
 
+    var concertPriceData = document.createElement('td');
+    concertPriceData.textContent = "$" + ticketPrice;
+    tableRow.appendChild(concertPriceData);
+
+    var flightPriceData = document.createElement('td');
+    flightPriceData.textContent = "$" + flightPrice;
+    tableRow.appendChild(flightPriceData);
+
+    var totalData = document.createElement('td');
+    var total = ticketPrice + flightPrice;
+    totalData.textContent = "$" + total;
+    tableRow.appendChild(totalData);
+    
+    $('tbody').append(tableRow);
 };
 
 
@@ -69,17 +90,12 @@ var displayShows = function(json) {
         // console.log("image_url_large: "+ticketImageL);
         // console.log("image_url_xlarge: "+ticketImageXL);
 
-
-        $("#ex-date")[0].innerText = showDate;
-        $("#ex-city")[0].innerText = originPlace;
-        $("#ex-concert-price")[0].innerText = "$" + ticketPrice;
-        $("#ex-flight-price")[0].innerText = "$100";
-        var total = ticketPrice + 100;
-        $("#ex-total")[0].innerText = "$" + total;
-
       
         // //need to generate plane ticket prices
         //getPlaneTickets(originPlace, destinationPlace, showDate);
+        
+        var flightPrice = 100;
+        createTableRow(showDate, destinationPlace, ticketPrice, flightPrice);
     }
 
 };
