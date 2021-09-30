@@ -49,13 +49,68 @@ var displayShows = function(json) {
 
         
         //need to generate plane ticket prices
-        //getTickets(destinationPlace);
+        getAirportCodes(originPlace, destinationPlace);
+        getTickets(originPlace, destinationPlace, showDate);
     }
 
 };
 
-var getTickets = function(destinationPlace) {
-    console.log("..generating airline prices to "+destinationPlace+"..");
+
+var getAirportCodes = function(cityName) {
+    var apiUrl = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/autosuggest/v1.0/UK/GBP/en-GB/?query=" + cityName;
+    fetch(apiUrl, {
+	"method": "GET",
+	"headers": {
+		"x-rapidapi-host": "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com",
+		"x-rapidapi-key": "1658dcf10fmshdb341b964db1078p1016f2jsn3f3f02e49882"
+	}
+    })
+    .then(response => {
+        response.json().then(function (data) {
+            console.log(data);
+            console.log(data.Places[0].CityId);
+        });
+    })
+    .catch(err => {
+        console.error(err);
+    });
+
+};
+
+var getTickets = function(originPlace, destinationPlace, showDate) {
+    console.log("..generating airline prices from " + originPlace + " to " + destinationPlace + " with departure date of " + showDate + "..");
+
+    // //skyscanner browse quotes fetch
+    // fetch("https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/"+originPlace+"/"+destinationPlace+"/"+showDate, {
+    // 	"method": "GET",
+    // 	"headers": {
+    // 		"x-rapidapi-host": "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com",
+    // 		//skyscanner apikey
+    //         "x-rapidapi-key": "d574042440msh4cf8eb8f0390492p1e0f76jsn1523b9586d4c"
+    // 	}
+    // })
+
+    var apiUrl = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/SFO-sky/JFK-sky/2021-11-01?inboundpartialdate=2021-12-01";
+
+    fetch(apiUrl, {
+	"method": "GET",
+	"headers": {
+		"x-rapidapi-host": "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com",
+		"x-rapidapi-key": "1658dcf10fmshdb341b964db1078p1016f2jsn3f3f02e49882"
+	}
+    })
+    .then(response => {
+        response.json().then(function (data) {
+            console.log(data);
+            console.log(data.Quotes);
+            console.log(data.Quotes.MinPrice);
+            console.log(data.Quotes[0].MinPrice);
+        });
+    })
+    .catch(err => {
+        console.error(err);
+    });
+    
     
     // //if we use this we'll need to put the form in the HTML
     // //maybe use moment to generate a mini calendar
@@ -64,22 +119,8 @@ var getTickets = function(destinationPlace) {
     // //queryselect this one
     // var originPlace = $("#city-search").val().replace(/ /g, "+") ;
     
-    // //skyscanner browse quotes fetch
-    // fetch("https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/"+originPlace+"/"+destinationPlace+"/"+outboundDate, {
-    // 	"method": "GET",
-    // 	"headers": {
-    // 		"x-rapidapi-host": "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com",
-    // 		//skyscanner apikey
-    //         "x-rapidapi-key": "d574042440msh4cf8eb8f0390492p1e0f76jsn1523b9586d4c"
-    // 	}
-    // })
-    // .then(response => {
-    // 	console.log(response);
-    // })
-    // .catch(err => {
-    // 	console.error(err);
-    // });
-}
+
+};
 
 
 
