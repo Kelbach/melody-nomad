@@ -1,6 +1,7 @@
 //ticketmaster key, skyscanner's key is included in fetch
 var TMkey = "bKSSMopWAtNQDbL3YZCKcnZyqYR9rgHa"; //user: kevinkelbach
 var searchBtn = $('#btn');
+var flightPrice = "No flight available";
 
 //copied and pasted from developer.ticketmaster
 var getShows = (function(band){
@@ -91,19 +92,18 @@ async function displayShows(json) {
         // console.log("image_url_xlarge: "+ticketImageXL);
 
       
-        // //need to generate plane ticket prices
-        //var flightPriceData = await getPlaneTicketPrice(originPlace, destinationPlace, showDate);
-        //var flightPrice = flightPriceData.Quotes[0].MinPrice;
-        // if (flightPriceData && flightPriceData.Quotes[0]) {
-        //     var flightPrice = flightPriceData.Quotes[0].MinPrice;
-        // } else {
-        //     var flightPrice = 0;
-        // }
+        //need to generate plane ticket prices
+        var flightPriceData = await getPlaneTicketPrice(originPlace, destinationPlace, showDate);
+
+        if (!flightPriceData || !flightPriceData.Quotes[0]){
+            flightPrice = "No flight available";
+        }
+        else{
+            flightPrice = flightPriceData.Quotes[0].MinPrice;
+        }
         
-        var flightPrice = 100;
         createTableRow(showDate, destinationPlace, ticketPrice, flightPrice);
     }
-
 };
 
 
@@ -123,15 +123,19 @@ async function getAirportCode(cityName) {
 
 async function renderAirportCodes(originPlace, destinationPlace) {
     let originData = await getAirportCode(originPlace);
-    originAirport = originData.Places[0].CityId;
+    if (!originData || !originData.Places[0]){
+        return;
+    }
+    else{
+        var originAirport = originData.Places[0].CityId;
+    }
 
     let destinationData = await getAirportCode(destinationPlace);
-    //destinationAirport = destinationData.Places[0].CityId;
-
-    if (destinationData.Places[0]) {
-        destinationAirport = destinationData.Places[0].CityId;
-    } else {
-        destinationAirport = "LAX-sky";
+    if (!destinationData || !destinationData.Places[0]){
+        return;
+    }
+    else{
+        var destinationAirport = destinationData.Places[0].CityId;
     }
 
     var airportArray = [originAirport, destinationAirport];
@@ -143,21 +147,24 @@ async function renderAirportCodes(originPlace, destinationPlace) {
 async function getPlaneTicketPrice(originPlace, destinationPlace, showDate) {
     console.log("..generating airline prices from " + originPlace + " to " + destinationPlace + " with departure date of " + showDate + "..");
     var airportArray = await renderAirportCodes(originPlace, destinationPlace);
-
-    var apiUrl = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/"+airportArray[0]+"/"+airportArray[1]+"/"+showDate+"?inboundpartialdate=2021-10-15";
-
-    try {
-        let res = await fetch(apiUrl, {"method": "GET", "headers": {
-            "x-rapidapi-host": "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com",
-            "x-rapidapi-key": "1658dcf10fmshdb341b964db1078p1016f2jsn3f3f02e49882"
-        }})
-        return await res.json();
-    } catch (error) {
-        console.log(error);
+    
+    if (!airportArray){
+        return;
     }
-};
+    else {
+        var apiUrl = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/"+airportArray[0]+"/"+airportArray[1]+"/"+showDate+"?inboundpartialdate=2021-10-15";
 
-//getPlaneTickets("Cleveland", "Los Angeles", "2021-10-01");
+        try {
+            let res = await fetch(apiUrl, {"method": "GET", "headers": {
+                "x-rapidapi-host": "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com",
+                "x-rapidapi-key": "1658dcf10fmshdb341b964db1078p1016f2jsn3f3f02e49882"
+            }})
+            return await res.json();
+        } catch (error) {
+            console.log(error);
+        }
+    };
+};
 
 
 searchBtn.on("click", function(event) {
