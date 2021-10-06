@@ -14,7 +14,7 @@ var getShows = (function(band){
         async:true,
         dataType: "json",
         success: function(json) {
-                    console.log(json);
+                    //console.log(json);
                     //execute display
                     displayShows(json);
 
@@ -39,34 +39,10 @@ var createTableRow = function(actName, showDate, destinationPlace, ticketPrice, 
     var list = $("<ul>").addClass("list-group");
     var date = $("<li>").addClass("list-group-item").text(showDate);
     var location = $("<li>").addClass("list-group-item").text(destinationPlace);
-    var showPrice = $("<li>").addClass("list-group-item").text("Show Tickets starting at $"+ticketPrice);
-    var airPrice = $("<li>").addClass("list-group-item air-ticket").text("Flights starting at $"+flightPrice);
+    var showPrice = $("<li>").addClass("list-group-item").text("Show Tickets starting at: "+ticketPrice);
+    var airPrice = $("<li>").addClass("list-group-item air-ticket").text("Flights starting at: "+flightPrice);
 
     $("#shows").append(card.append(imageContainer).append(infoContainer.append(cardTitle).append(list.append(date).append(location).append(showPrice).append(airPrice))));
-    
-    // var tableRow = document.createElement('tr');
-    // var dateData = document.createElement('td');
-    // dateData.textContent = showDate;
-    // tableRow.appendChild(dateData);
-
-    // var cityData = document.createElement('td');
-    // cityData.textContent = destinationPlace;
-    // tableRow.appendChild(cityData);
-
-    // var concertPriceData = document.createElement('td');
-    // concertPriceData.textContent = "$" + ticketPrice;
-    // tableRow.appendChild(concertPriceData);
-
-    // var flightPriceData = document.createElement('td');
-    // flightPriceData.textContent = "$" + flightPrice;
-    // tableRow.appendChild(flightPriceData);
-
-    // var totalData = document.createElement('td');
-    // var total = ticketPrice + flightPrice;
-    // totalData.textContent = "$" + total;
-    // tableRow.appendChild(totalData);
-    
-    // $('tbody').append(tableRow);
 };
 
 
@@ -74,6 +50,7 @@ var createTableRow = function(actName, showDate, destinationPlace, ticketPrice, 
 async function displayShows(json) {
 
     $("#shows").html(""); //this clears previous shows
+    $("#city-search").attr("data-airport", ''); //clear previous airport name
 
     console.log("rendering shows");
     var originPlace = $("#city-search").val().replace(/ /g, "+");
@@ -89,7 +66,12 @@ async function displayShows(json) {
     //need to generate card for upcoming tour dates using for loop,
         //size contains number of object elements ergo shows
     for (var i = 0; i < json.page.size; i++){
-        
+
+        if(!json._embedded){
+            alert('No upcoming events for that musician')
+            return;
+        }
+
         var actName = json._embedded.events[i].name;
         var showDate = json._embedded.events[i].dates.start.localDate ;
         var destinationPlace = json._embedded.events[i]._embedded.venues[0].city.name ;
@@ -99,9 +81,8 @@ async function displayShows(json) {
         
         //error on random ticketLink, images, might need to loops this somehow or just deal with errors
         if (json._embedded.events[i].priceRanges) {
-            ticketPrice = json._embedded.events[i].priceRanges[0].min;
+            ticketPrice = "$" + json._embedded.events[i].priceRanges[0].min;
         } else {
-            console.log("tickets not on sale");
             ticketPrice = "Not on Sale";
         }
 
@@ -123,10 +104,7 @@ async function displayShows(json) {
             flightPrice = "No flight available";
         }
         else{
-            console.log(flightPriceData);
-            console.log(flightPriceData.Quotes);
-            console.log(flightPriceData.Quotes[0]);
-            flightPrice = flightPriceData.Quotes[0].MinPrice;
+            flightPrice = "$" + flightPriceData.Quotes[0].MinPrice;
         }
         
         createTableRow(actName, showDate, destinationPlace, ticketPrice, flightPrice, ticketImage, ticketLink);
@@ -151,7 +129,6 @@ async function getAirportCode(cityName) {
 
 async function renderAirportCodes(destinationPlace) {
     var originAirport = $("#city-search").attr("data-airport");
-    console.log(originAirport);
 
     let destinationData = await getAirportCode(destinationPlace);
     if (!destinationData || !destinationData.Places || !destinationData.Places[0]){
