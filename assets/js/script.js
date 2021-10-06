@@ -33,8 +33,8 @@ var createTableRow = function(actName, showDate, destinationPlace, ticketPrice, 
     //background transparent for background image to shine through
     
     var card = $("<div>").addClass("row .bg-transparent");
-    var imageContainer = $("<div>").addClass("col-4").html("<a href='"+ticketLink+"'><img src='"+ticketImage+"' /></a>");
-    var infoContainer = $("<div>").addClass("col-8");
+    var imageContainer = $("<div>").addClass("col-4-img").html("<a href='"+ticketLink+"'><img src='"+ticketImage+"' /></a>");
+    var infoContainer = $("<div>").addClass("col-8-img");
     var cardTitle = $("<h2>").addClass("row").text(actName);
     var list = $("<ul>").addClass("list-group");
     var date = $("<li>").addClass("list-group-item").text(showDate);
