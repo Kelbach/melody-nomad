@@ -2,6 +2,7 @@
 var TMkey = "bKSSMopWAtNQDbL3YZCKcnZyqYR9rgHa"; //user: kevinkelbach
 var searchBtn = $('#btn');
 var flightPrice = "No flight available";
+var originCityAirport = '';
 
 //copied and pasted from developer.ticketmaster
 var getShows = (function(band){
@@ -57,12 +58,20 @@ var createTableRow = function(showDate, destinationPlace, ticketPrice, flightPri
 
 async function displayShows(json) {
     console.log("rendering shows");
-    
+    var originPlace = $("#city-search").val().replace(/ /g, "+");
+    let originCityData = await getAirportCode(originPlace);
+    if (!originCityData || !originCityData.Places || !originCityData.Places[0]){
+        originCityAirport = '';
+    }
+    else{
+        originCityAirport = originCityData.Places[0].CityId;
+    }
+    $("#city-search").attr("data-airport", originCityAirport);
+
     //need to generate card for upcoming tour dates using for loop,
         //size contains number of object elements ergo shows
     for (var i = 0; i < json.page.size; i++){
         
-        var originPlace = $("#city-search").val().replace(/ /g, "+");
         var actName = json._embedded.events[i].name;
         var showDate = json._embedded.events[i].dates.start.localDate ;
         var destinationPlace = json._embedded.events[i]._embedded.venues[0].city.name ;
@@ -95,10 +104,13 @@ async function displayShows(json) {
         //need to generate plane ticket prices
         var flightPriceData = await getPlaneTicketPrice(originPlace, destinationPlace, showDate);
 
-        if (!flightPriceData || !flightPriceData.Quotes[0]){
+        if (!flightPriceData || !flightPriceData.Quotes || !flightPriceData.Quotes[0]){
             flightPrice = "No flight available";
         }
         else{
+            console.log(flightPriceData);
+            console.log(flightPriceData.Quotes);
+            console.log(flightPriceData.Quotes[0]);
             flightPrice = flightPriceData.Quotes[0].MinPrice;
         }
         
@@ -121,17 +133,12 @@ async function getAirportCode(cityName) {
     }
 }
 
-async function renderAirportCodes(originPlace, destinationPlace) {
-    let originData = await getAirportCode(originPlace);
-    if (!originData || !originData.Places[0]){
-        return;
-    }
-    else{
-        var originAirport = originData.Places[0].CityId;
-    }
+async function renderAirportCodes(destinationPlace) {
+    var originAirport = $("#city-search").attr("data-airport");
+    console.log(originAirport);
 
     let destinationData = await getAirportCode(destinationPlace);
-    if (!destinationData || !destinationData.Places[0]){
+    if (!destinationData || !destinationData.Places || !destinationData.Places[0]){
         return;
     }
     else{
@@ -146,7 +153,7 @@ async function renderAirportCodes(originPlace, destinationPlace) {
 
 async function getPlaneTicketPrice(originPlace, destinationPlace, showDate) {
     console.log("..generating airline prices from " + originPlace + " to " + destinationPlace + " with departure date of " + showDate + "..");
-    var airportArray = await renderAirportCodes(originPlace, destinationPlace);
+    var airportArray = await renderAirportCodes(destinationPlace);
     
     if (!airportArray){
         return;
@@ -171,7 +178,7 @@ searchBtn.on("click", function(event) {
     event.preventDefault();
     var band = $('#band-search').val().replace(/ /g, "%20"); //regex to replace spaces with usable url symbols
     var city = $("#city-search").val().replace(/ /g, "+"); //this one might give us a hard time, we'll have to look up formatting for SS api
-    
+
     if (band && city) {
         console.log("I want to see "+band+" and I am from "+city);
         getShows(band);
