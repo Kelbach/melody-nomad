@@ -27,36 +27,54 @@ var getShows = (function(band){
 });
 
 
-var createTableRow = function(showDate, destinationPlace, ticketPrice, flightPrice){
-    var tableRow = document.createElement('tr');
-
-    var dateData = document.createElement('td');
-    dateData.textContent = showDate;
-    tableRow.appendChild(dateData);
-
-    var cityData = document.createElement('td');
-    cityData.textContent = destinationPlace;
-    tableRow.appendChild(cityData);
-
-    var concertPriceData = document.createElement('td');
-    concertPriceData.textContent = "$" + ticketPrice;
-    tableRow.appendChild(concertPriceData);
-
-    var flightPriceData = document.createElement('td');
-    flightPriceData.textContent = "$" + flightPrice;
-    tableRow.appendChild(flightPriceData);
-
-    var totalData = document.createElement('td');
-    var total = ticketPrice + flightPrice;
-    totalData.textContent = "$" + total;
-    tableRow.appendChild(totalData);
+var createTableRow = function(actName, showDate, destinationPlace, ticketPrice, flightPrice, ticketImage, ticketLink){
     
-    $('tbody').append(tableRow);
+    //added class='air-ticket' to the airline ticket so we can append a link to it later
+    //background transparent for background image to shine through
+    
+    var card = $("<div>").addClass("row .bg-transparent");
+    var imageContainer = $("<div>").addClass("col-4").html("<a href='"+ticketLink+"'><img src='"+ticketImage+"' /></a>");
+    var infoContainer = $("<div>").addClass("col-8");
+    var cardTitle = $("<h2>").addClass("row").text(actName);
+    var list = $("<ul>").addClass("list-group");
+    var date = $("<li>").addClass("list-group-item").text(showDate);
+    var location = $("<li>").addClass("list-group-item").text(destinationPlace);
+    var showPrice = $("<li>").addClass("list-group-item").text("Show Tickets starting at $"+ticketPrice);
+    var airPrice = $("<li>").addClass("list-group-item air-ticket").text("Flights starting at $"+flightPrice);
+
+    $("#shows").append(card.append(imageContainer).append(infoContainer.append(cardTitle).append(list.append(date).append(location).append(showPrice).append(airPrice))));
+    
+    // var tableRow = document.createElement('tr');
+    // var dateData = document.createElement('td');
+    // dateData.textContent = showDate;
+    // tableRow.appendChild(dateData);
+
+    // var cityData = document.createElement('td');
+    // cityData.textContent = destinationPlace;
+    // tableRow.appendChild(cityData);
+
+    // var concertPriceData = document.createElement('td');
+    // concertPriceData.textContent = "$" + ticketPrice;
+    // tableRow.appendChild(concertPriceData);
+
+    // var flightPriceData = document.createElement('td');
+    // flightPriceData.textContent = "$" + flightPrice;
+    // tableRow.appendChild(flightPriceData);
+
+    // var totalData = document.createElement('td');
+    // var total = ticketPrice + flightPrice;
+    // totalData.textContent = "$" + total;
+    // tableRow.appendChild(totalData);
+    
+    // $('tbody').append(tableRow);
 };
 
 
 
 async function displayShows(json) {
+
+    $("#shows").html(""); //this clears previous shows
+
     console.log("rendering shows");
     var originPlace = $("#city-search").val().replace(/ /g, "+");
     let originCityData = await getAirportCode(originPlace);
@@ -75,10 +93,8 @@ async function displayShows(json) {
         var actName = json._embedded.events[i].name;
         var showDate = json._embedded.events[i].dates.start.localDate ;
         var destinationPlace = json._embedded.events[i]._embedded.venues[0].city.name ;
-        var ticketLink = json._links.self.href;
-        var ticketImageSm = json._embedded.events[i].images[0].url;
-        var ticketImageL = json._embedded.events[i].images[4].url;
-        var ticketImageXL = json._embedded.events[i].images[5].url;
+        var ticketLink = json._embedded.events[i].url;
+        var ticketImage = json._embedded.events[i].images[0].url;
         var ticketPrice = "";
         
         //error on random ticketLink, images, might need to loops this somehow or just deal with errors
@@ -96,10 +112,9 @@ async function displayShows(json) {
         // console.log("destination: "+destinationPlace);
         // console.log("tickets starting at: $"+ticketPrice);
         // console.log("Link: "+"https://app.ticketmaster.com/"+ticketLink);
-        // console.log("image_url_smol: "+ticketImageSm);
-        // console.log("image_url_large: "+ticketImageL);
-        // console.log("image_url_xlarge: "+ticketImageXL);
+        // console.log("image_url_smol: "+ticketImage);
 
+        //READY FOR APPENDING
       
         //need to generate plane ticket prices
         var flightPriceData = await getPlaneTicketPrice(originPlace, destinationPlace, showDate);
@@ -114,20 +129,21 @@ async function displayShows(json) {
             flightPrice = flightPriceData.Quotes[0].MinPrice;
         }
         
-        createTableRow(showDate, destinationPlace, ticketPrice, flightPrice);
+        createTableRow(actName, showDate, destinationPlace, ticketPrice, flightPrice, ticketImage, ticketLink);
     }
 };
 
 
 async function getAirportCode(cityName) {
     let url = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/autosuggest/v1.0/UK/GBP/en-GB/?query=" + cityName;
-
+    
     try {
         let res = await fetch(url, {"method": "GET", "headers": {
             "x-rapidapi-host": "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com",
             "x-rapidapi-key": "1658dcf10fmshdb341b964db1078p1016f2jsn3f3f02e49882"
         }})
         return await res.json();
+        
     } catch (error) {
         console.log(error);
     }

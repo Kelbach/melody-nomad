@@ -18,6 +18,17 @@ header a {
     color: #3866fc;
     text-align: center;
   }
+
+/* images in show cards too big/ too small */
+img {
+  display: flex;
+  justify-content: center;
+  max-width: 100%;
+  min-width: 100%;
+  width: auto;
+  overflow: hidden;
+  }
+
 @media(min-width:468px){
     .row{
       display:flex;
