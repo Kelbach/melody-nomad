@@ -33,7 +33,7 @@ var createTableRow = function(actName, showDate, destinationPlace, ticketPrice, 
     //background transparent for background image to shine through
     
     var card = $("<div>").addClass("row .bg-transparent");
-    var imageContainer = $("<div>").addClass("col-4-img").html("<a href='"+ticketLink+"'><img src='"+ticketImage+"' /></a>");
+    var imageContainer = $("<div>").addClass("col-4-img").html("<a href='"+ticketLink+"' target='_blank'><img src='"+ticketImage+"' /></a>");
     var infoContainer = $("<div>").addClass("col-8-img");
     var cardTitle = $("<h2>").addClass("row").text(actName);
     var list = $("<ul>").addClass("list-group");
@@ -77,6 +77,7 @@ async function displayShows(json) {
         var destinationPlace = json._embedded.events[i]._embedded.venues[0].city.name ;
         var ticketLink = json._embedded.events[i].url;
         var ticketImage = json._embedded.events[i].images[0].url;
+        //save image to local storage
         var ticketPrice = "";
         
         //error on random ticketLink, images, might need to loops this somehow or just deal with errors
@@ -179,3 +180,11 @@ searchBtn.on("click", function(event) {
         alert("Please enter the Musician and the City");
     }
 });
+
+/* $(document).ready(function(){
+    for(i=0;i<5; i++){
+        //create an image container
+        //add image from local storage
+        //append it to the image div in html
+    }
+}) */
