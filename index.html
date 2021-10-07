@@ -11,7 +11,9 @@
 <body>
     <header class="row">
         <div class="col-12 text-center">
-           
+            <h1>
+                <a href="/">MELODY NOMAD</a>
+            </h1>  
         </div>
     </header>
 
@@ -21,8 +23,8 @@
             <div class="row">
                 <h2>Search for a Show:</h2>
                 <form>
-                    <input type="text" id="band-search" autofocus="true" class="form-input" placeholder="Enter Musician Name here">
-                    <input type="text" id="city-search" autofocus="true" class="form-input" placeholder="Enter Current City here">
+                    <input type="text" id="band-search" autofocus="true" class="form-input" placeholder="Artist">
+                    <input type="text" id="city-search" autofocus="true" class="form-input" placeholder="Current City">
                     <button type="submit" class="btn" id="btn">Search</button>
                 </form>
             </div>
@@ -30,8 +32,7 @@
                 <!-- cities searched col-12 text-center-->
             </div>
         </div>
-        <div class="col-8">
-            
+        <div class="col-8 flex-column text-center justify-space-between" id="shows">
         </div>
     </main>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
