@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Melody-Nomad</title>
+    <title>Melody Nomad</title>
+    <link rel="icon" href="assets\images\music-location.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     <link rel="stylesheet" href="assets/css/style.css" />
 </head>
@@ -12,7 +13,7 @@
     <header class="row">
         <div class="col-12 text-center">
             <h1>
-                <a href="/">MELODY NOMAD</a>
+                <a href="/"><img src='assets\images\music-location.png' alt="Airplane with Headphones" style="width:60px;height:60px;"/> MELODY NOMAD</a>
             </h1>  
         </div>
     </header>
@@ -27,6 +28,7 @@
                     <input type="text" id="city-search" autofocus="true" class="form-input" placeholder="Current City">
                     <button type="submit" class="btn" id="btn">Search</button>
                 </form>
+                <div id="warning"></div>
             </div>
             <div class="row flex-column">
                 <!-- cities searched col-12 text-center-->
@@ -35,18 +37,19 @@
         <div class="col-8 flex-column text-center justify-space-between" id="shows">
         </div>
     </main>
-   <!--  <footer>
+    <footer>
         <div class="row">
-            <div class="col-4">
+            <div class="col-2">
                 <h2>
-                    Take A Look At Your Recent Searches?
+                    Recent Searches:
                 </h2>
-                <div id="recent-images">
-                    
-                </div>
             </div>
+            <div class="col-10">
+                <div class="row" id="recent-images">
+                </div>                    
+            </div>  
         </div>
-    </footer> -->
+    </footer>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <script src="assets/js/script.js"></script>

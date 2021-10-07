@@ -3,6 +3,16 @@ var TMkey = "bKSSMopWAtNQDbL3YZCKcnZyqYR9rgHa"; //user: kevinkelbach
 var searchBtn = $('#btn');
 var flightPrice = "No flight available";
 var originCityAirport = '';
+var prevShows = JSON.parse(localStorage.getItem('prevShows')) || [];
+
+//function to generate previously clicked tickets into footer
+var docReady = (function() {
+    $("#recent-images").html("");
+    for (var i = 0; i < prevShows.length/2; i++) {
+        var searched = $("<div>").addClass("col-2").html("<a href='"+prevShows[2*i+1]+"'><img class='btm-img' src='"+prevShows[2*i]+"' /></a>");
+        $("#recent-images").append(searched);
+    }
+});
 
 //copied and pasted from developer.ticketmaster
 var getShows = (function(band){
@@ -14,14 +24,15 @@ var getShows = (function(band){
         async:true,
         dataType: "json",
         success: function(json) {
-                    //console.log(json);
+                    console.log(json);
+                    $("#warning").text("..Shows found..");
                     //execute display
                     displayShows(json);
-
+                    
                  },
         error: function(xhr, status, err) {
                     //maybe reword this alert
-                    alert("There was an error");
+                    $("#warning").text("There was an error");
                  }
     });
 });
@@ -34,6 +45,16 @@ var createTableRow = function(actName, showDate, destinationPlace, ticketPrice, 
     
     var card = $("<div>").addClass("row .bg-transparent");
     var imageContainer = $("<div>").addClass("col-4-img").html("<a href='"+ticketLink+"' target='_blank'><img src='"+ticketImage+"' /></a>");
+    
+    //adds listener to image to save the show clicked
+    imageContainer.on("click", function(event){
+        if(prevShows.indexOf(ticketImage) === -1) {
+            prevShows.push(ticketImage, ticketLink);
+            localStorage.setItem('prevShows', JSON.stringify(prevShows));
+            docReady();
+        }
+    });
+
     var infoContainer = $("<div>").addClass("col-8-img");
     var cardTitle = $("<h2>").addClass("row").text(actName);
     var list = $("<ul>").addClass("list-group");
@@ -71,11 +92,13 @@ async function displayShows(json) {
 
     //need to generate card for upcoming tour dates using for loop,
         //size contains number of object elements ergo shows
-    for (var i = 0; i < json.page.size; i++){
+    for (var i = 0; i < json.page.totalElements; i++){
 
         if(!json._embedded){
-            alert('No upcoming events for that musician')
+            $("#warning").text('No upcoming events for that musician');
             return;
+        } else {
+            $("#warning").text("..Displaying shows..");
         }
 
         var actName = json._embedded.events[i].name;
@@ -83,24 +106,17 @@ async function displayShows(json) {
         var destinationPlace = json._embedded.events[i]._embedded.venues[0].city.name ;
         var ticketLink = json._embedded.events[i].url;
         var ticketImage = json._embedded.events[i].images[0].url;
-        //save image to local storage
         var ticketPrice = "";
         
-        //error on random ticketLink, images, might need to loops this somehow or just deal with errors
         if (json._embedded.events[i].priceRanges) {
             ticketPrice = "$" + json._embedded.events[i].priceRanges[0].min;
         } else {
             ticketPrice = "Not on Sale";
         }
 
-        // console.log("////////////////info for event "+(i+1)+"////////////////")
-        // console.log("Name: "+actName);
-        // console.log("current-city: "+originPlace);
-        // console.log("event date: "+showDate);
-        // console.log("destination: "+destinationPlace);
-        // console.log("tickets starting at: $"+ticketPrice);
-        // console.log("Link: "+"https://app.ticketmaster.com/"+ticketLink);
-        // console.log("image_url_smol: "+ticketImage);
+        
+
+
 
         //READY FOR APPENDING
       
@@ -192,16 +208,12 @@ searchBtn.on("click", function(event) {
 
     if (band && city) {
         console.log("I want to see "+band+" and I am from "+city);
+        $("#warning").text("..Getting shows..")
         getShows(band);
     } else {
-        alert("Please enter the Musician and the City");
+        $("#warning").text("!!Please enter the Musician and the City!!")
+        // alert("Please enter the Musician and the City");
     }
 });
 
-/* $(document).ready(function(){
-    for(i=0;i<5; i++){
-        //create an image container
-        //add image from local storage
-        //append it to the image div in html
-    }
-}) */
+docReady();
