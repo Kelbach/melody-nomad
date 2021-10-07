@@ -4,4 +4,4 @@
 * Search for a musician, act, or event while listing your current city.
 * Cards are generated for each object returned from api calls.
 * Made with HTML, css, and javascript.
-![image](https://user-images.githubusercontent.com/87092340/136462091-bbb7fd0c-67b9-4b23-95cf-125a00429817.png)
+![image](https://user-images.githubusercontent.com/87092340/136462038-5f8004d1-8eb3-4db0-b429-7170f38c9232.png)
