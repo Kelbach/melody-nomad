@@ -9,7 +9,7 @@ var prevShows = JSON.parse(localStorage.getItem('prevShows')) || [];
 var docReady = (function() {
     $("#recent-images").html("");
     for (var i = 0; i < prevShows.length/2; i++) {
-        var searched = $("<div>").addClass("col-2").html("<a href='"+prevShows[2*i+1]+"'><img class='btm-img' src='"+prevShows[2*i]+"' /></a>");
+        var searched = $("<div>").addClass("col-2").html("<a href='"+prevShows[2*i+1]+"' target='_blank'><img class='btm-img' src='"+prevShows[2*i]+"' /></a>");
         $("#recent-images").append(searched);
     }
 });
@@ -48,15 +48,36 @@ var createTableRow = function(actName, showDate, destinationPlace, ticketPrice, 
     
     //adds listener to image to save the show clicked
     imageContainer.on("click", function(event){
-        if(prevShows.indexOf(ticketImage) === -1) {
+        if(prevShows.indexOf(ticketLink) === -1) {
             prevShows.push(ticketImage, ticketLink);
             localStorage.setItem('prevShows', JSON.stringify(prevShows));
+
+            if(prevShows.length > 17) {
+                var firstShow = prevShows.splice(0, 2);
+                localStorage.setItem('prevShows', JSON.stringify(prevShows));
+            }
+            docReady();
+        }
+        
+    });
+
+    var infoContainer = $("<div>").addClass("col-8-img");
+    var cardTitle = $("<div>").addClass("row").html("<a href='"+ticketLink+"' target='_blank'><h2>"+actName+"</h2></a>");
+    
+    //adds listener to cardTitle to save show clicked
+    cardTitle.on("click", function(event){
+        if(prevShows.indexOf(ticketLink) === -1) {
+            prevShows.push(ticketImage, ticketLink);
+            localStorage.setItem('prevShows', JSON.stringify(prevShows));
+            
+            if(prevShows.length > 17) {
+                var firstShow = prevShows.splice(0, 2);
+                localStorage.setItem('prevShows', JSON.stringify(prevShows));
+            }
             docReady();
         }
     });
 
-    var infoContainer = $("<div>").addClass("col-8-img");
-    var cardTitle = $("<div>").addClass("row").html("<a href='"+ticketLink+"'><h2>"+actName+"</h2></a>");
     var list = $("<ul>").addClass("list-group");
     var date = $("<li>").addClass("list-group-item").text(showDate);
     var location = $("<li>").addClass("list-group-item").text(destinationPlace);
@@ -93,6 +114,9 @@ async function displayShows(json) {
     //need to generate card for upcoming tour dates using for loop,
         //size contains number of object elements ergo shows
     for (var i = 0; i < json.page.totalElements; i++){
+        if (i === 20) {
+            break
+        }
 
         if(!json._embedded){
             $("#warning").text('No upcoming events for that musician');
