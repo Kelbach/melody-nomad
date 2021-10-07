@@ -117,7 +117,7 @@ body{
 }
 
 .col-8{
-  width: 100%;
+  position: center;
 }
 
 .col-4-img{
@@ -126,4 +126,8 @@ body{
 
 .col-8-img{
   width: 66%
+}
+
+#recent-images{
+  align-items:center;
 }
