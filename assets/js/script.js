@@ -38,7 +38,7 @@ var getShows = (function(band){
 });
 
 
-var createTableRow = function(actName, showDate, destinationPlace, ticketPrice, flightPrice, ticketImage, ticketLink){
+var createTableRow = function(actName, showDate, destinationPlace, ticketPrice, flightPrice, flightLink, ticketImage, ticketLink){
     
     //added class='air-ticket' to the airline ticket so we can append a link to it later
     //background transparent for background image to shine through
@@ -61,7 +61,13 @@ var createTableRow = function(actName, showDate, destinationPlace, ticketPrice, 
     var date = $("<li>").addClass("list-group-item").text(showDate);
     var location = $("<li>").addClass("list-group-item").text(destinationPlace);
     var showPrice = $("<li>").addClass("list-group-item").text("Show Tickets starting at: "+ticketPrice);
-    var airPrice = $("<li>").addClass("list-group-item air-ticket").text("Flights starting at: "+flightPrice);
+    var airPrice = $("<li>").addClass("list-group-item air-ticket");
+    if(flightLink && flightPrice != "No flight available"){
+        airPrice.html("<a href='"+flightLink+"' target='_blank'>Flights starting at: "+flightPrice+"</a>");
+    } 
+    else {
+        airPrice.text("Flights starting at: "+flightPrice);
+    }
 
     $("#shows").append(card.append(imageContainer).append(infoContainer.append(cardTitle).append(list.append(date).append(location).append(showPrice).append(airPrice))));
 };
@@ -116,15 +122,20 @@ async function displayShows(json) {
       
         //need to generate plane ticket prices
         var flightPriceData = await getPlaneTicketPrice(originPlace, destinationPlace, showDate);
+        console.log(flightPriceData);
 
         if (!flightPriceData || !flightPriceData.Quotes || !flightPriceData.Quotes[0]){
             flightPrice = "No flight available";
         }
         else{
             flightPrice = "$" + flightPriceData.Quotes[0].MinPrice;
+            console.log(flightPriceData.flightLink);
+            if (flightPriceData.flightLink){
+                var flightLink = flightPriceData.flightLink;
+            }
         }
         
-        createTableRow(actName, showDate, destinationPlace, ticketPrice, flightPrice, ticketImage, ticketLink);
+        createTableRow(actName, showDate, destinationPlace, ticketPrice, flightPrice, flightLink, ticketImage, ticketLink);
     }
 };
 
@@ -162,25 +173,27 @@ async function renderAirportCodes(destinationPlace) {
 
 
 async function getPlaneTicketPrice(originPlace, destinationPlace, showDate) {
-    console.log("..generating airline prices from " + originPlace + " to " + destinationPlace + " with departure date of " + showDate + "..");
+    console.log("..generating airline prices from " + originPlace+" to " + destinationPlace + " with departure date of " + showDate + "..");
     var departureDate = moment(showDate, "YYYY-MM-DD").subtract(1, 'days').format("YYYY-MM-DD");
     var returnDate = moment(showDate, "YYYY-MM-DD").add(1, 'days').format("YYYY-MM-DD");
 
     var airportArray = await renderAirportCodes(destinationPlace);
     
-    if (!airportArray){
+    if (!airportArray || airportArray[0] == '-sky' || airportArray[1]  == '-sky'){
         return;
     }
     else {
         var apiUrl = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/"+airportArray[0]+"/"+airportArray[1]+"/"+departureDate+"?inboundpartialdate="+returnDate;
-
+        var flightLink = "https://www.skyscanner.com/transport/flights/"+airportArray[0].split('-')[0]+"/"+airportArray[1].split('-')[0]+"/"+moment(departureDate, "YYYY-MM-DD").format("YYMMDD")+"/"+moment(returnDate, "YYYY-MM-DD").format("YYMMDD")+"/";
 
         try {
             let res = await fetch(apiUrl, {"method": "GET", "headers": {
                 "x-rapidapi-host": "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com",
                 "x-rapidapi-key": "1658dcf10fmshdb341b964db1078p1016f2jsn3f3f02e49882"
             }})
-            return await res.json();
+            var flightJson = await res.json()
+            flightJson["flightLink"] = flightLink;
+            return await flightJson;
         } catch (error) {
             console.log(error);
         }
