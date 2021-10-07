@@ -56,7 +56,7 @@ var createTableRow = function(actName, showDate, destinationPlace, ticketPrice, 
     });
 
     var infoContainer = $("<div>").addClass("col-8-img");
-    var cardTitle = $("<h2>").addClass("row").text(actName);
+    var cardTitle = $("<div>").addClass("row").html("<a href='"+ticketLink+"'><h2>"+actName+"</h2></a>");
     var list = $("<ul>").addClass("list-group");
     var date = $("<li>").addClass("list-group-item").text(showDate);
     var location = $("<li>").addClass("list-group-item").text(destinationPlace);
