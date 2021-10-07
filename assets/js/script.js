@@ -77,6 +77,7 @@ async function displayShows(json) {
         var destinationPlace = json._embedded.events[i]._embedded.venues[0].city.name ;
         var ticketLink = json._embedded.events[i].url;
         var ticketImage = json._embedded.events[i].images[0].url;
+        //save image to local storage
         var ticketPrice = "";
         
         //error on random ticketLink, images, might need to loops this somehow or just deal with errors
@@ -179,3 +180,11 @@ searchBtn.on("click", function(event) {
         alert("Please enter the Musician and the City");
     }
 });
+
+/* $(document).ready(function(){
+    for(i=0;i<5; i++){
+        //create an image container
+        //add image from local storage
+        //append it to the image div in html
+    }
+}) */
