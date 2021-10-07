@@ -20,7 +20,7 @@ header a {
   }
 
 /* images in show cards too big/ too small */
-img {
+.col-4-img img {
   display: flex;
   justify-content: center;
   max-width: 100%;
