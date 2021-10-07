@@ -147,13 +147,17 @@ async function renderAirportCodes(destinationPlace) {
 
 async function getPlaneTicketPrice(originPlace, destinationPlace, showDate) {
     console.log("..generating airline prices from " + originPlace + " to " + destinationPlace + " with departure date of " + showDate + "..");
+    var departureDate = moment(showDate, "YYYY-MM-DD").subtract(1, 'days').format("YYYY-MM-DD");
+    var returnDate = moment(showDate, "YYYY-MM-DD").add(1, 'days').format("YYYY-MM-DD");
+
     var airportArray = await renderAirportCodes(destinationPlace);
     
     if (!airportArray){
         return;
     }
     else {
-        var apiUrl = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/"+airportArray[0]+"/"+airportArray[1]+"/"+showDate+"?inboundpartialdate=2021-10-15";
+        var apiUrl = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/"+airportArray[0]+"/"+airportArray[1]+"/"+departureDate+"?inboundpartialdate="+returnDate;
+
 
         try {
             let res = await fetch(apiUrl, {"method": "GET", "headers": {
